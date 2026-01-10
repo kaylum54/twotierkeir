@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import NewsCard from '@/components/NewsCard';
 import NationalMoodGauge from '@/components/NationalMoodGauge';
-import WarningBanner from '@/components/WarningBanner';
 import StampOverlay from '@/components/StampOverlay';
 import { getArticles, getDashboardStats } from '@/lib/api';
 import { Article, DashboardStats } from '@/lib/types';
@@ -37,72 +36,59 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Emergency Warning Banner */}
-      <WarningBanner />
-
-      {/* Hero - Emergency Broadcast Style */}
-      <section className="bg-disaster text-white py-8 relative overflow-hidden">
-        {/* Warning tape top */}
-        <div className="absolute top-0 left-0 right-0 h-6 warning-stripe opacity-90" />
-
-        <div className="container-wide pt-8">
-          <div className="text-center">
-            <h1 className="font-typewriter text-3xl md:text-5xl mb-2">
-              🚨 SITUATION REPORT 🚨
+      {/* Hero Section */}
+      <section className="bg-gov-blue-dark text-white py-12">
+        <div className="container-wide">
+          <div className="text-center mb-8">
+            <h1 className="font-typewriter text-3xl md:text-5xl mb-3">
+              TRACKING THE STARMER GOVERNMENT
             </h1>
-            <p className="font-typewriter text-disaster-light text-lg">
-              Official Status: <span className="text-highlight-yellow">IT&apos;S NOT GOING WELL</span>
+            <p className="text-gov-blue-light text-lg max-w-2xl mx-auto">
+              An unofficial record of promises, polls, and political missteps
             </p>
           </div>
 
-          {/* Big stats in "control room" style */}
+          {/* Stats Grid */}
           {stats && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              <div className="bg-white/10 backdrop-blur border border-white/20 p-4 text-center">
+              <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-5 text-center">
                 <div className="font-typewriter text-4xl md:text-5xl font-bold text-highlight-yellow">
                   {stats.days_since_disaster}
                 </div>
-                <div className="font-typewriter text-xs text-white/80 mt-1 uppercase">
-                  Days Since Last Disaster
+                <div className="font-typewriter text-xs text-white/80 mt-2 uppercase">
+                  Days Since Last Controversy
                 </div>
-                <div className="text-xs text-white/60 mt-1">(Always zero)</div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur border border-white/20 p-4 text-center">
+              <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-5 text-center">
                 <div className="font-typewriter text-4xl md:text-5xl font-bold">
                   {stats.broken_promises}
                 </div>
-                <div className="font-typewriter text-xs text-white/80 mt-1 uppercase">
+                <div className="font-typewriter text-xs text-white/80 mt-2 uppercase">
                   Promises Broken
                 </div>
-                <div className="text-xs text-white/60 mt-1">And counting</div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur border border-white/20 p-4 text-center">
+              <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-5 text-center">
                 <div className="font-typewriter text-4xl md:text-5xl font-bold">
                   {stats.latest_approval_rating ? `${stats.latest_approval_rating.toFixed(0)}%` : 'N/A'}
                 </div>
-                <div className="font-typewriter text-xs text-white/80 mt-1 uppercase">
+                <div className="font-typewriter text-xs text-white/80 mt-2 uppercase">
                   Approval Rating
                 </div>
-                <div className="text-xs text-white/60 mt-1">↓ Still falling</div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur border border-white/20 p-4 text-center">
+              <div className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-5 text-center">
                 <div className="font-typewriter text-4xl md:text-5xl font-bold">
                   {stats.negative_articles}
                 </div>
-                <div className="font-typewriter text-xs text-white/80 mt-1 uppercase">
-                  Negative Stories
+                <div className="font-typewriter text-xs text-white/80 mt-2 uppercase">
+                  Stories Tracked
                 </div>
-                <div className="text-xs text-white/60 mt-1">This week</div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Warning tape bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-6 warning-stripe opacity-90" />
       </section>
 
       {/* National Mood Gauge Section */}
@@ -118,23 +104,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Latest Failures Section */}
+      {/* Latest News Section */}
       <section className="py-12 bg-paper-beige">
         <div className="container-wide">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <div className="inline-block mb-2">
-                <StampOverlay type="leaked" className="text-sm" />
-              </div>
               <h2 className="font-typewriter text-3xl text-ink-black">
-                INTERCEPTED INTELLIGENCE
+                LATEST COVERAGE
               </h2>
               <p className="text-ink-grey font-typewriter text-sm">
-                The latest disasters from Downing Street
+                Recent news and analysis
               </p>
             </div>
             <Link href="/failures" className="btn-gov-primary hidden md:inline-flex">
-              VIEW ALL FAILURES →
+              VIEW ALL STORIES →
             </Link>
           </div>
 
@@ -166,88 +149,65 @@ export default function HomePage() {
 
           <div className="mt-8 text-center md:hidden">
             <Link href="/failures" className="btn-gov-primary">
-              VIEW ALL FAILURES →
+              VIEW ALL STORIES →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Quick Links Section - Folder style */}
+      {/* Quick Links Section */}
       <section className="py-12 bg-paper-white">
         <div className="container-wide">
           <h2 className="font-typewriter text-2xl text-ink-black text-center mb-8">
-            DEPARTMENTS OF FAILURE
+            EXPLORE
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Broken Promises */}
-            <Link href="/promises" className="document-card document-card-hover group relative">
-              <div className="absolute -top-3 -right-3">
-                <StampOverlay type="broken" className="text-sm" />
-              </div>
+            <Link href="/promises" className="document-card document-card-hover group">
               <div className="text-5xl mb-4">📜</div>
               <h3 className="font-typewriter text-xl text-ink-black group-hover:text-gov-blue transition-colors mb-2">
-                THE EVIDENCE BOARD
+                PROMISE TRACKER
               </h3>
               <p className="text-ink-grey text-sm">
-                Every pledge, promise, and U-turn tracked and catalogued for posterity.
+                Every pledge, promise, and U-turn tracked and catalogued.
               </p>
-              <div className="mt-4 font-handwriting text-disaster text-lg -rotate-1">
-                "They promised WHAT?"
-              </div>
             </Link>
 
             {/* Poll Watch */}
-            <Link href="/polls" className="document-card document-card-hover group relative">
-              <div className="absolute -top-3 -right-3">
-                <StampOverlay type="crisis" className="text-sm" />
-              </div>
+            <Link href="/polls" className="document-card document-card-hover group">
               <div className="text-5xl mb-4">📉</div>
               <h3 className="font-typewriter text-xl text-ink-black group-hover:text-gov-blue transition-colors mb-2">
-                APPROVAL CRATER
+                POLL TRACKER
               </h3>
               <p className="text-ink-grey text-sm">
-                Watch the approval ratings plummet in real-time. It&apos;s like a nature documentary.
+                Approval ratings and public opinion over time.
               </p>
-              <div className="mt-4 font-handwriting text-disaster text-lg rotate-1">
-                "New record low!"
-              </div>
             </Link>
 
             {/* Tier List */}
-            <Link href="/tier-list" className="document-card document-card-hover group relative">
-              <div className="absolute -top-3 -right-3">
-                <StampOverlay type="disaster" className="text-sm" />
-              </div>
-              <div className="text-5xl mb-4">🏆</div>
+            <Link href="/tier-list" className="document-card document-card-hover group">
+              <div className="text-5xl mb-4">🗳️</div>
               <h3 className="font-typewriter text-xl text-ink-black group-hover:text-gov-blue transition-colors mb-2">
-                HALL OF SHAME
+                PUBLIC VOTE
               </h3>
               <p className="text-ink-grey text-sm">
-                The worst decisions, ranked by the British public. Democracy in action.
+                Rate and rank the government&apos;s decisions.
               </p>
-              <div className="mt-4 font-handwriting text-disaster text-lg -rotate-2">
-                "Vote for your favourite disaster!"
-              </div>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA Section - Government notice style */}
+      {/* CTA Section */}
       <section className="py-16 bg-gov-blue-dark text-white">
         <div className="container-gov text-center">
-          <div className="inline-block bg-highlight-yellow text-ink-black px-4 py-1 font-typewriter text-sm mb-4 -rotate-1">
-            PUBLIC INFORMATION NOTICE
-          </div>
-
           <h2 className="font-typewriter text-3xl md:text-4xl mb-6">
-            STAY INFORMED. STAY OUTRAGED.
+            STAY INFORMED
           </h2>
 
           <p className="text-gov-blue-light text-lg mb-8 max-w-xl mx-auto">
-            Follow the official TWOTIER KEIR X account for real-time updates on every
-            stumble, scandal, and spectacular failure.
+            Follow us on X for the latest updates.
           </p>
 
           <a
