@@ -1,20 +1,22 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
 const navItems = [
-  { label: 'FAILURES', href: '/failures', count: 147 },
-  { label: 'BROKEN PROMISES', href: '/promises', count: 23 },
+  { label: 'FAILURES', href: '/failures' },
+  { label: 'PROMISES', href: '/promises' },
   { label: 'WORLD STAGE', href: '/world-stage' },
-  { label: 'APPROVAL CRATER', href: '/polls' },
-  { label: 'HALL OF SHAME', href: '/tier-list' },
+  { label: 'POLLS', href: '/polls' },
+  { label: 'VOTE', href: '/tier-list' },
 ];
 
 export default function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="bg-gov-blue-dark">
@@ -57,14 +59,47 @@ export default function Header() {
           </Link>
 
           {/* Mobile menu button */}
-          <button className="md:hidden p-2 text-white hover:bg-gov-blue rounded">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <button
+            className="md:hidden p-2 text-white hover:bg-gov-blue rounded"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
 
-        {/* Navigation - Folder tabs style */}
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden py-4 border-t border-gov-blue">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={clsx(
+                    'block px-4 py-3 font-typewriter text-sm transition-colors',
+                    isActive
+                      ? 'bg-gov-blue text-white font-bold'
+                      : 'text-gov-blue-light hover:bg-gov-blue hover:text-white'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
+
+        {/* Desktop Navigation - Folder tabs style */}
         <nav className="hidden md:flex items-end gap-1 mt-4 -mb-[1px]">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -80,14 +115,6 @@ export default function Header() {
                 )}
               >
                 {item.label}
-                {item.count && (
-                  <span className={clsx(
-                    'ml-2 px-1.5 py-0.5 text-xs rounded',
-                    isActive ? 'bg-disaster text-white' : 'bg-gray-300 text-ink-grey'
-                  )}>
-                    {item.count}
-                  </span>
-                )}
               </Link>
             );
           })}
