@@ -411,3 +411,57 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         latest_approval_rating=latest_approval,
         days_since_disaster=0,  # Always 0 for satirical effect
     )
+
+
+@router.post("/admin/seed")
+def seed_data(db: Session = Depends(get_db)):
+    """Seed polls and tier items."""
+    # Seed polls
+    polls_data = [
+        {"pollster": "YouGov", "date": datetime(2024, 7, 15), "approval_rating": 35, "disapproval_rating": 42},
+        {"pollster": "Ipsos", "date": datetime(2024, 8, 1), "approval_rating": 32, "disapproval_rating": 45},
+        {"pollster": "YouGov", "date": datetime(2024, 8, 15), "approval_rating": 28, "disapproval_rating": 51},
+        {"pollster": "Savanta", "date": datetime(2024, 9, 1), "approval_rating": 25, "disapproval_rating": 55},
+        {"pollster": "YouGov", "date": datetime(2024, 9, 15), "approval_rating": 24, "disapproval_rating": 58},
+        {"pollster": "Ipsos", "date": datetime(2024, 10, 1), "approval_rating": 22, "disapproval_rating": 60},
+        {"pollster": "YouGov", "date": datetime(2024, 10, 15), "approval_rating": 20, "disapproval_rating": 63},
+        {"pollster": "Savanta", "date": datetime(2024, 11, 1), "approval_rating": 19, "disapproval_rating": 65},
+        {"pollster": "YouGov", "date": datetime(2024, 11, 15), "approval_rating": 18, "disapproval_rating": 67},
+        {"pollster": "Ipsos", "date": datetime(2024, 12, 1), "approval_rating": 17, "disapproval_rating": 68},
+        {"pollster": "YouGov", "date": datetime(2024, 12, 15), "approval_rating": 16, "disapproval_rating": 70},
+        {"pollster": "YouGov", "date": datetime(2025, 1, 5), "approval_rating": 15, "disapproval_rating": 72},
+    ]
+
+    polls_added = 0
+    for p in polls_data:
+        existing = db.query(Poll).filter(Poll.date == p["date"], Poll.pollster == p["pollster"]).first()
+        if not existing:
+            db.add(Poll(**p))
+            polls_added += 1
+
+    # Seed tier items
+    tier_items_data = [
+        {"description": "Accepting free designer clothes and glasses from wealthy donor", "category": "scandal"},
+        {"description": "Winter fuel payment cuts for pensioners", "category": "policy"},
+        {"description": "Breaking tax promises within months", "category": "promise"},
+        {"description": "Freebies scandal - Taylor Swift tickets", "category": "scandal"},
+        {"description": "Sue Gray appointment and subsequent chaos", "category": "personnel"},
+        {"description": "Two-tier policing accusations", "category": "controversy"},
+        {"description": "Dropping 28 billion green pledge", "category": "u-turn"},
+        {"description": "Sausages comment during riots", "category": "gaffe"},
+        {"description": "Accepting free accommodation for son during exams", "category": "scandal"},
+        {"description": "Rachel Reeves black hole budget", "category": "policy"},
+        {"description": "Farmers inheritance tax controversy", "category": "policy"},
+        {"description": "Releasing prisoners early", "category": "policy"},
+    ]
+
+    items_added = 0
+    for item in tier_items_data:
+        existing = db.query(TierItem).filter(TierItem.description == item["description"]).first()
+        if not existing:
+            db.add(TierItem(**item))
+            items_added += 1
+
+    db.commit()
+
+    return {"success": True, "polls_added": polls_added, "tier_items_added": items_added}
