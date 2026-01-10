@@ -95,6 +95,8 @@ app.add_middleware(
         # Production domains
         "https://twotierkeir.vercel.app",
         "https://*.vercel.app",
+        "https://two-tier-keir.com",
+        "https://www.two-tier-keir.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
