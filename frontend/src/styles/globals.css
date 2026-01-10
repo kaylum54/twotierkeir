@@ -1,0 +1,424 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper-beige text-ink-black font-sans antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-typewriter;
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-highlight-yellow text-ink-black;
+  }
+}
+
+@layer components {
+  /* ==========================================
+     DOCUMENT / PAPER CARDS
+     ========================================== */
+  .document-card {
+    @apply bg-paper-white border border-gray-300 shadow-paper p-6 relative;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  .document-card-hover {
+    @apply transition-all duration-200;
+  }
+
+  .document-card-hover:hover {
+    @apply shadow-paper-hover;
+    transform: translateY(-3px) rotate(0.5deg);
+  }
+
+  /* ==========================================
+     STAMPS
+     ========================================== */
+  .stamp {
+    @apply font-stamp text-xl uppercase tracking-wider px-4 py-2 border-4 opacity-85;
+    transform: rotate(-12deg);
+  }
+
+  .stamp-red {
+    @apply text-stamp-red border-stamp-red;
+  }
+
+  .stamp-failure {
+    @apply stamp stamp-red;
+  }
+
+  .stamp-disaster {
+    @apply stamp text-disaster border-disaster;
+    transform: rotate(8deg);
+  }
+
+  .stamp-broken {
+    @apply stamp text-stamp-red border-stamp-red;
+    transform: rotate(-5deg);
+  }
+
+  .stamp-leaked {
+    @apply stamp text-gov-blue border-gov-blue;
+    transform: rotate(15deg);
+  }
+
+  .stamp-classified {
+    @apply stamp text-ink-black border-ink-black;
+    transform: rotate(-8deg);
+  }
+
+  /* ==========================================
+     BUTTONS - Government Style
+     ========================================== */
+  .btn-gov {
+    @apply px-4 py-3 font-semibold transition-all duration-150;
+    box-shadow: 0 2px 0 #002550;
+  }
+
+  .btn-gov-primary {
+    @apply btn-gov bg-gov-blue text-white hover:bg-gov-blue-dark;
+  }
+
+  .btn-gov-warning {
+    @apply btn-gov bg-disaster text-white hover:bg-disaster-dark;
+    box-shadow: 0 2px 0 #6e2812;
+  }
+
+  .btn-gov-secondary {
+    @apply btn-gov bg-paper-beige text-ink-black border-2 border-ink-black hover:bg-gray-200;
+    box-shadow: none;
+  }
+
+  /* ==========================================
+     BADGES / TAGS
+     ========================================== */
+  .badge-threat {
+    @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase tracking-wide rounded-sm;
+  }
+
+  .badge-threat-severe {
+    @apply badge-threat bg-disaster text-white;
+  }
+
+  .badge-threat-high {
+    @apply badge-threat bg-disaster-light text-white;
+  }
+
+  .badge-threat-elevated {
+    @apply badge-threat bg-highlight-yellow text-ink-black;
+  }
+
+  .badge-threat-guarded {
+    @apply badge-threat bg-gov-blue text-white;
+  }
+
+  /* ==========================================
+     POST-IT NOTES
+     ========================================== */
+  .postit {
+    @apply font-handwriting text-lg p-4 shadow-md;
+    transform: rotate(-2deg);
+  }
+
+  .postit-yellow {
+    @apply postit bg-yellow-200;
+  }
+
+  .postit-pink {
+    @apply postit bg-pink-200;
+  }
+
+  .postit-blue {
+    @apply postit bg-blue-200;
+  }
+
+  /* ==========================================
+     FOLDER TABS (Navigation)
+     ========================================== */
+  .folder-tab {
+    @apply relative px-4 py-2 bg-paper-manila border-t-2 border-l border-r border-gray-400 rounded-t-lg font-typewriter text-sm;
+    margin-bottom: -1px;
+  }
+
+  .folder-tab-active {
+    @apply bg-paper-white border-b-white font-bold;
+  }
+
+  .folder-tab:hover:not(.folder-tab-active) {
+    @apply bg-paper-beige;
+  }
+
+  /* ==========================================
+     CONTAINERS
+     ========================================== */
+  .container-gov {
+    @apply max-w-5xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ==========================================
+     WARNING BANNER
+     ========================================== */
+  .warning-banner {
+    @apply bg-highlight-yellow text-ink-black py-1 px-4 font-bold text-sm overflow-hidden whitespace-nowrap;
+  }
+
+  .warning-stripe {
+    background: repeating-linear-gradient(
+      45deg,
+      #000,
+      #000 10px,
+      #ffdd00 10px,
+      #ffdd00 20px
+    );
+  }
+
+  /* ==========================================
+     CORK BOARD
+     ========================================== */
+  .cork-board {
+    @apply bg-cork p-8 min-h-screen;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(139, 90, 43, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(139, 90, 43, 0.2) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+  }
+
+  /* ==========================================
+     TERMINAL / MISSION CONTROL
+     ========================================== */
+  .terminal-screen {
+    @apply bg-black text-terminal-green font-mono p-6 rounded border-4 border-gray-600;
+    box-shadow: inset 0 0 50px rgba(0, 255, 0, 0.1);
+  }
+
+  .terminal-text {
+    @apply text-terminal-green;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
+
+  .terminal-warning {
+    @apply text-red-500;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+  }
+
+  /* ==========================================
+     WANTED POSTER
+     ========================================== */
+  .wanted-poster {
+    @apply bg-paper-aged border-4 border-ink-black p-4 text-center;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  }
+
+  /* ==========================================
+     PUSH PIN
+     ========================================== */
+  .push-pin {
+    @apply w-6 h-6 rounded-full shadow-md;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+  }
+
+  .push-pin::after {
+    content: '';
+    @apply absolute w-1 h-3 bg-gray-400 rounded-full;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ==========================================
+     REDACTED TEXT
+     ========================================== */
+  .redacted {
+    @apply bg-ink-black text-ink-black transition-all duration-300 px-1;
+  }
+
+  .redacted:hover {
+    @apply bg-transparent text-ink-black;
+  }
+
+  /* ==========================================
+     PAPER CLIP
+     ========================================== */
+  .paper-clip {
+    @apply absolute -top-2 left-8 w-8 h-12;
+    background: linear-gradient(180deg, #c0c0c0 0%, #a0a0a0 50%, #c0c0c0 100%);
+    border-radius: 0 50px 50px 0;
+    border: 3px solid #888;
+    border-left: none;
+  }
+
+  /* ==========================================
+     STAT BOXES
+     ========================================== */
+  .stat-box-gov {
+    @apply bg-paper-white border-l-4 border-gov-blue p-4;
+  }
+
+  .stat-box-warning {
+    @apply bg-paper-white border-l-4 border-disaster p-4;
+  }
+
+  .stat-value {
+    @apply text-4xl font-bold font-typewriter;
+  }
+
+  .stat-label {
+    @apply text-sm text-ink-grey uppercase tracking-wide mt-1;
+  }
+
+  /* ==========================================
+     TYPED DOCUMENT STYLING
+     ========================================== */
+  .typed-document {
+    @apply font-typewriter text-ink-black leading-relaxed;
+    background:
+      linear-gradient(transparent 95%, rgba(0,0,0,0.05) 95%);
+    background-size: 100% 1.5em;
+  }
+
+  /* ==========================================
+     COFFEE STAIN (pseudo-element)
+     ========================================== */
+  .coffee-stain::before {
+    content: '';
+    @apply absolute w-24 h-24 rounded-full opacity-10 pointer-events-none;
+    background: radial-gradient(ellipse at center,
+      rgba(101, 67, 33, 0.3) 0%,
+      rgba(101, 67, 33, 0.1) 40%,
+      transparent 70%
+    );
+    transform: rotate(15deg);
+    top: 20%;
+    right: 10%;
+  }
+}
+
+@layer utilities {
+  /* ==========================================
+     TEXT EFFECTS
+     ========================================== */
+  .text-red-underline {
+    text-decoration: underline wavy #d4351c;
+    text-underline-offset: 4px;
+  }
+
+  .text-highlight {
+    @apply bg-highlight-yellow px-1;
+  }
+
+  /* ==========================================
+     GLITCH TEXT
+     ========================================== */
+  .glitch-text {
+    position: relative;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch-text::before {
+    animation: glitch 0.3s infinite;
+    color: #ff0000;
+    z-index: -1;
+    left: 2px;
+  }
+
+  .glitch-text::after {
+    animation: glitch 0.3s infinite reverse;
+    color: #0000ff;
+    z-index: -2;
+    left: -2px;
+  }
+
+  /* ==========================================
+     ROTATION UTILITIES
+     ========================================== */
+  .rotate-random-1 { transform: rotate(-2deg); }
+  .rotate-random-2 { transform: rotate(1.5deg); }
+  .rotate-random-3 { transform: rotate(-1deg); }
+  .rotate-random-4 { transform: rotate(2.5deg); }
+  .rotate-random-5 { transform: rotate(-3deg); }
+
+  /* ==========================================
+     GLOW EFFECTS
+     ========================================== */
+  .glow-green {
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), 0 0 20px rgba(0, 255, 0, 0.3);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5), 0 0 20px rgba(255, 0, 0, 0.3);
+  }
+
+  /* ==========================================
+     SCANLINES (Retro effect)
+     ========================================== */
+  .scanlines::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  }
+
+  /* ==========================================
+     SCROLLBAR STYLING
+     ========================================== */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-paper-beige;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-ink-grey rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-black;
+  }
+}
+
+/* ==========================================
+   CUSTOM KEYFRAME FOR SCROLL (in addition to Tailwind)
+   ========================================== */
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.scroll-text {
+  animation: scrollText 15s linear infinite;
+}
