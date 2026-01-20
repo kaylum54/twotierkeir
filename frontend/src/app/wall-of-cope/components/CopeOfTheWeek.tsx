@@ -1,11 +1,12 @@
 'use client';
 
 interface CopeEntry {
-  id: number;
+  id: number | string;
   content: string;
   source_url?: string;
   source_platform: string;
   source_username?: string;
+  subreddit?: string;
   category: string;
   cope_level: number;
   votes: number;

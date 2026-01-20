@@ -173,7 +173,7 @@ export default function WallOfCopePage() {
     }
   };
 
-  const handleVote = async (id: number) => {
+  const handleVote = async (id: number | string) => {
     try {
       await fetch(`/api/cope/${id}/vote`, { method: 'POST' });
     } catch {
