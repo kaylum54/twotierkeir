@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import NewsCard from '@/components/NewsCard';
 import StampOverlay from '@/components/StampOverlay';
+import FollowCTA from '@/components/FollowCTA';
 import { getArticles } from '@/lib/api';
 import { Article } from '@/lib/types';
 
@@ -163,6 +164,11 @@ export default function FailuresPage() {
             )}
           </>
         )}
+
+        {/* Follow CTA */}
+        <div className="mt-12">
+          <FollowCTA variant="compact" />
+        </div>
       </div>
     </div>
   );

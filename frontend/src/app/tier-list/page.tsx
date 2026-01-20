@@ -5,6 +5,7 @@ import TierList from '@/components/TierList';
 import { getTierList } from '@/lib/api';
 import { TierItem } from '@/lib/types';
 import StampOverlay from '@/components/StampOverlay';
+import FollowCTA from '@/components/FollowCTA';
 
 export default function TierListPage() {
   const [items, setItems] = useState<TierItem[]>([]);
@@ -237,6 +238,9 @@ export default function TierListPage() {
           </div>
         </div>
       </section>
+
+      {/* Follow CTA */}
+      <FollowCTA />
     </div>
   );
 }

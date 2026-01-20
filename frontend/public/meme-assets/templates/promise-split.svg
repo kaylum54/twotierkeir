@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+  <rect width="500" height="500" fill="#f0f0f0"/>
+  <rect x="10" y="10" width="480" height="480" fill="none" stroke="#ccc" stroke-width="2" stroke-dasharray="10,5"/>
+  <text x="250" y="240" font-family="Arial" font-size="24" fill="#888" text-anchor="middle">promise-split</text>
+  <text x="250" y="280" font-family="Arial" font-size="14" fill="#aaa" text-anchor="middle">Template Placeholder</text>
+</svg>

@@ -127,6 +127,37 @@ class TierItem(Base):
     is_active = Column(Boolean, default=True)
 
 
+class CopeEntry(Base):
+    """Wall of Cope entries - delusional defences of Starmer."""
+    __tablename__ = "cope_entries"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    content = Column(Text, nullable=False)
+    source_url = Column(String(500), nullable=True)
+    source_platform = Column(String(50), default="other")  # 'x', 'reddit', 'facebook', 'other'
+    source_username = Column(String(100), nullable=True)
+    screenshot_url = Column(String(500), nullable=True)
+    category = Column(String(50), default="copium")  # 'denial', 'deflection', 'whatabout', 'copium'
+    cope_level = Column(Integer, default=5)  # 1-10 scale
+    votes = Column(Integer, default=0)
+    is_approved = Column(Boolean, default=False)
+    is_featured = Column(Boolean, default=False)
+    submitted_by_ip_hash = Column(String(64), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    approved_at = Column(DateTime, nullable=True)
+
+    __table_args__ = (
+        CheckConstraint(
+            source_platform.in_(['x', 'reddit', 'facebook', 'other']),
+            name='valid_cope_platform'
+        ),
+        CheckConstraint(
+            category.in_(['denial', 'deflection', 'whatabout', 'copium']),
+            name='valid_cope_category'
+        ),
+    )
+
+
 def get_db():
     """Dependency for getting database session."""
     db = SessionLocal()

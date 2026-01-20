@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+  <rect width="500" height="500" fill="rgba(0,0,0,0.1)"/>
+  <text x="250" y="250" font-family="Arial" font-size="16" fill="rgba(0,0,0,0.3)" text-anchor="middle">torn overlay</text>
+</svg>

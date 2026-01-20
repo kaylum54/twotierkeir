@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import PushPin from '@/components/PushPin';
 import StampOverlay from '@/components/StampOverlay';
 import PostItNote from '@/components/PostItNote';
+import FollowCTA from '@/components/FollowCTA';
 
 // Get consistent rotation based on promise ID
 const getRotation = (id: number): number => {
@@ -354,6 +355,9 @@ export default function PromisesPage() {
           </div>
         </div>
       </section>
+
+      {/* Follow CTA */}
+      <FollowCTA />
     </div>
   );
 }

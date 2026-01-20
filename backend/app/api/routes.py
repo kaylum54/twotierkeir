@@ -465,3 +465,210 @@ def seed_data(db: Session = Depends(get_db)):
     db.commit()
 
     return {"success": True, "polls_added": polls_added, "tier_items_added": items_added}
+
+
+# === Cope Endpoints (Wall of Cope) ===
+
+@router.get("/cope")
+def get_cope_entries(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    category: Optional[str] = None,
+    sort_by: str = Query("votes", regex="^(votes|recent|cope_level)$"),
+    db: Session = Depends(get_db),
+):
+    """Get approved cope entries."""
+    from ..database import CopeEntry
+
+    query = db.query(CopeEntry).filter(CopeEntry.is_approved == True)
+
+    if category:
+        query = query.filter(CopeEntry.category == category)
+
+    if sort_by == "votes":
+        query = query.order_by(CopeEntry.votes.desc())
+    elif sort_by == "recent":
+        query = query.order_by(CopeEntry.created_at.desc())
+    elif sort_by == "cope_level":
+        query = query.order_by(CopeEntry.cope_level.desc())
+
+    total = query.count()
+    entries = query.offset(offset).limit(limit).all()
+
+    return [
+        {
+            "id": e.id,
+            "content": e.content,
+            "source_url": e.source_url,
+            "source_platform": e.source_platform,
+            "source_username": e.source_username,
+            "category": e.category,
+            "cope_level": e.cope_level,
+            "votes": e.votes,
+            "created_at": e.created_at.isoformat(),
+        }
+        for e in entries
+    ]
+
+
+@router.get("/cope/featured")
+def get_featured_cope(db: Session = Depends(get_db)):
+    """Get cope of the week."""
+    from ..database import CopeEntry
+
+    entry = db.query(CopeEntry).filter(
+        CopeEntry.is_featured == True,
+        CopeEntry.is_approved == True
+    ).first()
+
+    if not entry:
+        # Return a default/mock featured entry
+        return {
+            "id": 0,
+            "content": "The freebies scandal is actually a good thing because it shows he's relatable!",
+            "source_platform": "x",
+            "source_username": "ExampleUser",
+            "category": "copium",
+            "cope_level": 10,
+            "votes": 999,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+
+    return {
+        "id": entry.id,
+        "content": entry.content,
+        "source_url": entry.source_url,
+        "source_platform": entry.source_platform,
+        "source_username": entry.source_username,
+        "category": entry.category,
+        "cope_level": entry.cope_level,
+        "votes": entry.votes,
+        "created_at": entry.created_at.isoformat(),
+    }
+
+
+@router.post("/cope/submit")
+def submit_cope(
+    content: str,
+    source_url: Optional[str] = None,
+    source_platform: str = "other",
+    category: str = "copium",
+    request: Request = None,
+    db: Session = Depends(get_db),
+):
+    """Submit a cope entry for moderation."""
+    from ..database import CopeEntry
+
+    # Validate content length
+    if len(content) < 20:
+        raise HTTPException(400, "Content must be at least 20 characters")
+    if len(content) > 500:
+        raise HTTPException(400, "Content must be less than 500 characters")
+
+    # Get anonymised IP hash for rate limiting
+    client_ip = request.client.host if request and request.client else "unknown"
+    ip_hash = hashlib.sha256(client_ip.encode()).hexdigest()[:16]
+
+    # Check for existing submissions from this IP in last 24 hours
+    since = datetime.utcnow() - timedelta(hours=24)
+    recent_submissions = db.query(CopeEntry).filter(
+        CopeEntry.submitted_by_ip_hash == ip_hash,
+        CopeEntry.created_at > since
+    ).count()
+
+    if recent_submissions >= 5:
+        raise HTTPException(429, "Too many submissions. Try again later.")
+
+    # Create entry (not approved by default)
+    entry = CopeEntry(
+        content=content,
+        source_url=source_url,
+        source_platform=source_platform,
+        category=category,
+        cope_level=5,  # Default, can be adjusted by moderator
+        submitted_by_ip_hash=ip_hash,
+    )
+
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+
+    return {"success": True, "message": "Submitted for review", "id": entry.id}
+
+
+@router.post("/cope/{cope_id}/vote")
+def vote_cope(cope_id: int, db: Session = Depends(get_db)):
+    """Upvote a cope entry."""
+    from ..database import CopeEntry
+
+    entry = db.query(CopeEntry).filter(CopeEntry.id == cope_id).first()
+    if not entry:
+        raise HTTPException(404, "Cope not found")
+
+    entry.votes += 1
+    db.commit()
+
+    return {"success": True, "votes": entry.votes}
+
+
+@router.get("/admin/cope/pending")
+def get_pending_cope(db: Session = Depends(get_db)):
+    """Get pending cope entries for moderation (admin only)."""
+    from ..database import CopeEntry
+
+    entries = db.query(CopeEntry).filter(
+        CopeEntry.is_approved == False
+    ).order_by(CopeEntry.created_at.desc()).all()
+
+    return [
+        {
+            "id": e.id,
+            "content": e.content,
+            "source_url": e.source_url,
+            "source_platform": e.source_platform,
+            "category": e.category,
+            "created_at": e.created_at.isoformat(),
+        }
+        for e in entries
+    ]
+
+
+@router.post("/admin/cope/{cope_id}/approve")
+def approve_cope(
+    cope_id: int,
+    cope_level: int = 5,
+    db: Session = Depends(get_db),
+):
+    """Approve a cope entry (admin only)."""
+    from ..database import CopeEntry
+
+    entry = db.query(CopeEntry).filter(CopeEntry.id == cope_id).first()
+    if not entry:
+        raise HTTPException(404, "Cope not found")
+
+    entry.is_approved = True
+    entry.cope_level = cope_level
+    entry.approved_at = datetime.utcnow()
+    db.commit()
+
+    return {"success": True, "message": "Cope approved"}
+
+
+@router.post("/admin/cope/{cope_id}/feature")
+def feature_cope(cope_id: int, db: Session = Depends(get_db)):
+    """Set a cope entry as featured (admin only)."""
+    from ..database import CopeEntry
+
+    # Remove featured from all other entries
+    db.query(CopeEntry).filter(CopeEntry.is_featured == True).update(
+        {"is_featured": False}
+    )
+
+    entry = db.query(CopeEntry).filter(CopeEntry.id == cope_id).first()
+    if not entry:
+        raise HTTPException(404, "Cope not found")
+
+    entry.is_featured = True
+    db.commit()
+
+    return {"success": True, "message": "Cope set as featured"}

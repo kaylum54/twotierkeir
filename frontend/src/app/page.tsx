@@ -207,19 +207,19 @@ export default function HomePage() {
           </h2>
 
           <p className="text-gov-blue-light text-lg mb-8 max-w-xl mx-auto">
-            Follow us on X for the latest updates.
+            Follow <span className="text-highlight-yellow font-bold">@starmertimes</span> on X for the latest updates on government incompetence.
           </p>
 
           <a
-            href="https://twitter.com"
+            href="https://x.com/starmertimes"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-gov bg-white text-gov-blue-dark hover:bg-gray-100 inline-flex items-center gap-2"
+            className="btn-gov bg-white text-gov-blue-dark hover:bg-highlight-yellow inline-flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
-            FOLLOW ON X
+            FOLLOW @STARMERTIMES
           </a>
 
           <p className="mt-8 text-xs text-gov-blue-light opacity-70">

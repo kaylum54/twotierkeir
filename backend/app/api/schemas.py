@@ -201,3 +201,42 @@ class DashboardStats(BaseModel):
     broken_promises: int
     latest_approval_rating: Optional[float] = None
     days_since_disaster: int = 0  # Always 0 for satirical effect
+
+
+# Cope schemas (Wall of Cope)
+class CopeBase(BaseModel):
+    content: str = Field(..., min_length=20, max_length=500)
+    source_url: Optional[str] = None
+    source_platform: str = "other"
+    category: str = "copium"
+
+
+class CopeSubmit(CopeBase):
+    pass
+
+
+class CopeResponse(CopeBase):
+    id: int
+    source_username: Optional[str] = None
+    cope_level: int
+    votes: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CopeListResponse(BaseModel):
+    entries: List[CopeResponse]
+    total: int
+
+
+class CopeVoteResponse(BaseModel):
+    success: bool
+    votes: int
+
+
+class CopeSubmitResponse(BaseModel):
+    success: bool
+    message: str
+    id: Optional[int] = None

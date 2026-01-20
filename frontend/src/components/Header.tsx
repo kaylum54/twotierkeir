@@ -9,9 +9,8 @@ import clsx from 'clsx';
 const navItems = [
   { label: 'FAILURES', href: '/failures' },
   { label: 'PROMISES', href: '/promises' },
-  { label: 'WORLD STAGE', href: '/world-stage' },
-  { label: 'POLLS', href: '/polls' },
-  { label: 'VOTE', href: '/tier-list' },
+  { label: 'HALL OF SHAME', href: '/tier-list' },
+  { label: 'WALL OF COPE', href: '/wall-of-cope' },
 ];
 
 export default function Header() {
