@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import { TwitterApi } from 'twitter-api-v2';
 
-const client = new TwitterApi({
-  appKey: process.env.X_API_KEY!,
-  appSecret: process.env.X_API_SECRET!,
-  accessToken: process.env.X_ACCESS_TOKEN!,
-  accessSecret: process.env.X_ACCESS_TOKEN_SECRET!,
-});
-
-// Verify this is a legitimate cron request
-const CRON_SECRET = process.env.CRON_SECRET;
+// Lazy initialization to avoid build-time errors
+function getTwitterClient() {
+  return new TwitterApi({
+    appKey: process.env.X_API_KEY!,
+    appSecret: process.env.X_API_SECRET!,
+    accessToken: process.env.X_ACCESS_TOKEN!,
+    accessSecret: process.env.X_ACCESS_TOKEN_SECRET!,
+  });
+}
 
 // Tweet templates - jokey standalone content
 const JOKES = [
@@ -90,16 +90,17 @@ function getRandomTweet(): string {
 
 export async function GET(request: Request) {
   // Verify cron secret if set
-  if (CRON_SECRET) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
 
   try {
     const tweetText = getRandomTweet();
-
+    const client = getTwitterClient();
     const { data } = await client.v2.tweet(tweetText);
 
     return NextResponse.json({

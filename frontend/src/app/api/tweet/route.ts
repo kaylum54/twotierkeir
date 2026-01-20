@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { TwitterApi } from 'twitter-api-v2';
 
-const client = new TwitterApi({
-  appKey: process.env.X_API_KEY!,
-  appSecret: process.env.X_API_SECRET!,
-  accessToken: process.env.X_ACCESS_TOKEN!,
-  accessSecret: process.env.X_ACCESS_TOKEN_SECRET!,
-});
+// Lazy initialization to avoid build-time errors
+function getTwitterClient() {
+  return new TwitterApi({
+    appKey: process.env.X_API_KEY!,
+    appSecret: process.env.X_API_SECRET!,
+    accessToken: process.env.X_ACCESS_TOKEN!,
+    accessSecret: process.env.X_ACCESS_TOKEN_SECRET!,
+  });
+}
 
 // Tweet templates - snarky commentary on Starmer
 const TWEET_TEMPLATES = [
@@ -65,6 +68,7 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const tweetText = body.text || generateTweet();
 
+    const client = getTwitterClient();
     const { data } = await client.v2.tweet(tweetText);
 
     return NextResponse.json({
