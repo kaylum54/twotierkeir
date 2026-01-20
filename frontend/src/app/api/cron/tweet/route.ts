@@ -11,65 +11,81 @@ const client = new TwitterApi({
 // Verify this is a legitimate cron request
 const CRON_SECRET = process.env.CRON_SECRET;
 
-// Tweet templates - variety of snarky commentary
-const MORNING_TWEETS = [
-  "Good morning! Another day of holding this government accountable. What fresh disaster awaits? 🫖",
-  "☀️ Rise and shine! Time to check if any more promises were broken overnight: {url}/promises",
-  "🌅 Morning update: Still tracking every failure, every U-turn, every broken promise. {url}",
+// Tweet templates - jokey standalone content
+const JOKES = [
+  "Keir Starmer walks into a bar. He orders a pint, then U-turns and orders water instead. Then U-turns again and leaves.",
+  "My sat nav just did a Starmer. Promised to take me home, ended up somewhere completely different, and blamed the previous driver.",
+  "Thinking about starting a Keir Starmer diet. You promise to lose weight but then just gain more and blame the last government.",
+  "Keir Starmer's promises have a shorter lifespan than a Liz Truss premiership.",
+  "Just saw Keir Starmer at a revolving door. He went around 14 times and called each one a 'difficult decision'.",
+  "If Keir Starmer was a GPS: 'In 100 meters, make a U-turn. Actually, make one now. Actually, I inherited this route.'",
+  "Starmer's commitment to his promises is like my commitment to the gym in January. Strong for about 3 days.",
+  "Two Tier Keir: One rule for me accepting freebies, another rule for pensioners keeping their heating on.",
+  "Keir Starmer could U-turn in a cul-de-sac.",
+  "The only thing Starmer hasn't U-turned on is his ability to U-turn.",
+  "Asked Starmer for directions. He said 'follow me' then walked in 6 different directions and charged me for the journey.",
+  "Keir Starmer's backbone has been reported missing. Last seen during the election campaign. If found, do not return - he won't recognise it.",
+  "Imagine being a Starmer promise. Born in a manifesto, dead by Tuesday.",
+  "Starmer treats promises like Tinder matches. Swipes right enthusiastically, ghosts immediately after.",
+  "POV: You're a Keir Starmer promise and you see a 'difficult decision' approaching 💀",
+  "Keir Starmer's energy policy: Promise green, deliver nothing, blame the weather.",
+  "Day 1: Bold promise\nDay 2: Nuanced clarification\nDay 3: That's not what I meant\nDay 4: Actually, the Tories\nDay 5: New bold promise",
+  "Starmer said he'd be different. He was right. Usually politicians wait until AFTER the election to disappoint you.",
+  "If broken promises were an Olympic sport, Starmer would finally win something for Britain.",
+  "Just checked my energy bill. Thanks Keir. Really feeling that 'change' you promised. 🥲",
 ];
 
-const AFTERNOON_TWEETS = [
-  "📊 Midday check-in: The Hall of Shame is heating up. Cast your vote: {url}/tier-list",
-  "🔥 Trending on the failure tracker right now... {url}/failures",
-  "💭 Lunchtime thought: Remember when politicians kept their promises? Neither do we. {url}",
+const OBSERVATIONAL = [
+  "Remember when 'change' was the slogan? Good times.",
+  "The audacity of promising change and then changing nothing except your promises.",
+  "Watching Starmer defend his decisions is like watching someone explain why they ate the last biscuit. Poorly.",
+  "Somewhere, a Labour manifesto is being used as fiction in a creative writing class.",
+  "Friendly reminder that 'difficult decisions' is politician for 'I'm doing the opposite of what I said'.",
+  "Another day, another 'we inherited this mess' statement. The political equivalent of 'the dog ate my homework'.",
+  "Keir's approval ratings are dropping faster than his promises.",
+  "Weird how all those 'fully costed plans' suddenly became 'black holes' after the election. Almost like... no, couldn't be.",
+  "If I U-turned at work as much as this government, I'd be fired. Good thing there's no accountability in politics!",
+  "It's not a broken promise, it's an 'evolving commitment to pragmatic governance'. Obviously.",
+  "Plot twist: The change was the friends we lost along the way.",
+  "Winter fuel payments are fine, just put on a jumper. - Someone who accepts free designer clothes",
+  "Imagine working class pensioners seeing their heating cut while watching politicians debate which freebie to accept next.",
+  "The 'most working-class cabinet ever' sure does love those corporate hospitality boxes.",
+  "Keir Starmer: Fighting for working people* \n\n*Terms and conditions apply. Working people does not include pensioners, renters, or anyone expecting promises to be kept.",
 ];
 
-const EVENING_TWEETS = [
-  "📋 Daily roundup: Another day, another set of excuses. Full breakdown: {url}",
-  "🌙 Evening reminder: We're still watching. Every promise. Every U-turn. {url}/promises",
-  "🧠 End of day cope collection looking strong. See the best mental gymnastics: {url}/wall-of-cope",
-];
-
-const GENERAL_TWEETS = [
-  "🚨 PROMISE TRACKER: {broken} broken, {pending} pending, {kept}... kept? We'll believe it when we see it. {url}/promises",
-  "🎭 Two Tier Keir tracker update. The people are rating the failures: {url}/tier-list",
-  "📉 The numbers don't lie. Track every broken promise: {url}",
-  "🔄 Lost count of the U-turns yet? Don't worry, we haven't: {url}/promises",
-  "💨 Fresh copium alert! See what the defenders are saying: {url}/wall-of-cope",
-  "⚠️ Public service announcement: Your government accountability tracker is live 24/7 {url}",
-  "🗳️ Democracy means holding them accountable. Do your part: {url}/tier-list",
-  "📢 Promises made. Promises broken. All documented: {url}/promises",
-  "🎪 Welcome to the circus. Today's performance: {url}/failures",
-  "⏰ Tick tock. Still waiting on those promises... {url}",
+const SARCASM = [
+  "Can't believe people are criticising Starmer. He's done exactly what he said. If you flip the manifesto upside down. And read it backwards. In a mirror.",
+  "Give him time! It's only been *checks notes* long enough to break most major promises.",
+  "But what about the 14 years of Tories? Checkmate, critics.",
+  "To be fair, he never SPECIFICALLY said he'd keep his promises. We just assumed.",
+  "The economy will improve any day now. Any day. Just wait. Keep waiting. Still waiting.",
+  "Don't worry lads, I'm sure the 'growth' will trickle down any minute now.",
+  "Breaking: Government announces new policy. Experts predict U-turn by Thursday.",
+  "In Starmer's defence, it's very hard to keep promises when you keep making new ones to break.",
+  "Why keep one promise when you can break five? Efficiency.",
+  "Sources confirm Keir Starmer has successfully completed a full 360° - he's now facing the original direction but somehow further from the destination.",
 ];
 
 const SITE_URL = "https://twotierkeir.com";
 
-function getTimeBasedTweet(): string {
-  const hour = new Date().getUTCHours();
+// Occasional site plugs (only ~20% of tweets)
+const SITE_PLUGS = [
+  "Tracking every broken promise at {url} 📋",
+  "Full accountability tracker: {url}",
+];
 
-  let templates: string[];
+function getRandomTweet(): string {
+  // 80% jokes, 20% site plug
+  const allJokes = [...JOKES, ...OBSERVATIONAL, ...SARCASM];
 
-  if (hour >= 6 && hour < 12) {
-    templates = [...MORNING_TWEETS, ...GENERAL_TWEETS];
-  } else if (hour >= 12 && hour < 18) {
-    templates = [...AFTERNOON_TWEETS, ...GENERAL_TWEETS];
-  } else {
-    templates = [...EVENING_TWEETS, ...GENERAL_TWEETS];
+  if (Math.random() < 0.2) {
+    // Occasionally plug the site
+    const plug = SITE_PLUGS[Math.floor(Math.random() * SITE_PLUGS.length)];
+    return plug.replace('{url}', SITE_URL);
   }
 
-  const template = templates[Math.floor(Math.random() * templates.length)];
-
-  // Mock stats (could fetch from actual API later)
-  const broken = Math.floor(Math.random() * 10) + 15;
-  const pending = Math.floor(Math.random() * 10) + 5;
-  const kept = Math.floor(Math.random() * 3);
-
-  return template
-    .replace(/{url}/g, SITE_URL)
-    .replace('{broken}', broken.toString())
-    .replace('{pending}', pending.toString())
-    .replace('{kept}', kept.toString());
+  // Pick a random joke
+  return allJokes[Math.floor(Math.random() * allJokes.length)];
 }
 
 export async function GET(request: Request) {
@@ -82,7 +98,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const tweetText = getTimeBasedTweet();
+    const tweetText = getRandomTweet();
 
     const { data } = await client.v2.tweet(tweetText);
 
