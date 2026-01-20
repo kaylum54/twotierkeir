@@ -1,27 +1,40 @@
 import { NextResponse } from 'next/server';
 
-// The Guardian API - free, no key required for basic access
-const GUARDIAN_API = 'https://content.guardianapis.com/search';
-const API_KEY = 'test'; // 'test' key works for low-volume requests
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const YOUTUBE_API = 'https://www.googleapis.com/youtube/v3';
 
-interface GuardianArticle {
+interface YouTubeComment {
   id: string;
-  webTitle: string;
-  webUrl: string;
-  webPublicationDate: string;
-  fields?: {
-    trailText?: string;
-    bodyText?: string;
-    standfirst?: string;
+  snippet: {
+    topLevelComment: {
+      id: string;
+      snippet: {
+        textDisplay: string;
+        textOriginal: string;
+        authorDisplayName: string;
+        authorChannelUrl?: string;
+        likeCount: number;
+        publishedAt: string;
+        videoId: string;
+      };
+    };
   };
-  tags?: Array<{ webTitle: string }>;
+}
+
+interface YouTubeVideo {
+  id: { videoId: string };
+  snippet: {
+    title: string;
+    channelTitle: string;
+    publishedAt: string;
+  };
 }
 
 // Keywords for cope categorization
 const COPE_KEYWORDS = {
-  whatabout: ['tory', 'tories', 'conservative', '14 years', 'inherited', 'previous government', 'sunak', 'truss'],
-  deflection: ['media', 'bias', 'unfair', 'misrepresent', 'taken out of context', 'actually meant'],
-  denial: ['give him time', 'early days', 'only been', 'too soon', 'wait and see', 'long term'],
+  whatabout: ['tory', 'tories', 'conservative', '14 years', 'inherited', 'previous government', 'sunak', 'truss', 'boris', 'johnson'],
+  deflection: ['media', 'bias', 'unfair', 'misrepresent', 'context', 'actually meant', 'bbc', 'press'],
+  denial: ['give him time', 'early days', 'only been', 'too soon', 'wait and see', 'long term', 'chance', 'months'],
 };
 
 // Categorize based on content
@@ -47,43 +60,62 @@ function calculateCopeLevel(text: string): number {
   level += Math.min(matches.length, 3);
 
   // Controversial topics boost
-  if (lowerText.includes('winter fuel') || lowerText.includes('freebies') || lowerText.includes('donations')) {
+  if (lowerText.includes('winter fuel') || lowerText.includes('freebies') || lowerText.includes('donations') || lowerText.includes('taylor swift')) {
     level += 2;
   }
+
+  // Exclamation marks indicate passion
+  const exclamations = (text.match(/!/g) || []).length;
+  level += Math.min(exclamations, 2);
 
   return Math.min(level, 10);
 }
 
-// Fetch from The Guardian API
-async function fetchGuardianArticles(): Promise<GuardianArticle[]> {
+// Search for videos about Starmer
+async function searchVideos(): Promise<YouTubeVideo[]> {
   try {
-    // Search for Starmer/Labour articles
-    const queries = ['keir starmer', 'labour government', 'starmer'];
-    const allArticles: GuardianArticle[] = [];
+    const queries = ['keir starmer', 'labour government uk', 'starmer interview'];
+    const allVideos: YouTubeVideo[] = [];
 
     for (const query of queries) {
-      const url = `${GUARDIAN_API}?q=${encodeURIComponent(query)}&section=politics&show-fields=trailText,standfirst&page-size=20&api-key=${API_KEY}`;
+      const url = `${YOUTUBE_API}/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&order=date&regionCode=GB&relevanceLanguage=en&key=${YOUTUBE_API_KEY}`;
 
-      const response = await fetch(url, {
-        cache: 'no-store',
-      });
+      const response = await fetch(url, { cache: 'no-store' });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.response?.results) {
-          allArticles.push(...data.response.results);
+        if (data.items) {
+          allVideos.push(...data.items);
         }
       }
     }
 
-    // Deduplicate by id
-    const unique = allArticles.filter(
-      (article, index, self) => index === self.findIndex(a => a.id === article.id)
+    // Deduplicate
+    const unique = allVideos.filter(
+      (video, index, self) => index === self.findIndex(v => v.id.videoId === video.id.videoId)
     );
 
-    return unique;
+    return unique.slice(0, 15); // Limit to save quota
   } catch (error) {
-    console.error('Error fetching from Guardian:', error);
+    console.error('Error searching YouTube videos:', error);
+    return [];
+  }
+}
+
+// Get comments from a video
+async function getVideoComments(videoId: string): Promise<YouTubeComment[]> {
+  try {
+    const url = `${YOUTUBE_API}/commentThreads?part=snippet&videoId=${videoId}&maxResults=30&order=relevance&key=${YOUTUBE_API_KEY}`;
+
+    const response = await fetch(url, { cache: 'no-store' });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.items || [];
+    }
+    return [];
+  } catch (error) {
+    console.error(`Error fetching comments for ${videoId}:`, error);
     return [];
   }
 }
@@ -93,22 +125,36 @@ export async function GET(request: Request) {
   const category = searchParams.get('category') || 'all';
   const sortBy = searchParams.get('sort_by') || 'recent';
 
-  const articles = await fetchGuardianArticles();
+  if (!YOUTUBE_API_KEY) {
+    return NextResponse.json({ error: 'YouTube API key not configured' }, { status: 500 });
+  }
 
-  const allContent = articles.map(article => {
-    const text = article.fields?.standfirst || article.fields?.trailText || article.webTitle;
+  // Get recent videos about Starmer
+  const videos = await searchVideos();
+
+  // Get comments from each video
+  const allComments: YouTubeComment[] = [];
+  for (const video of videos.slice(0, 8)) { // Limit to save quota
+    const comments = await getVideoComments(video.id.videoId);
+    allComments.push(...comments);
+  }
+
+  // Transform to our format
+  const allContent = allComments.map(comment => {
+    const snippet = comment.snippet.topLevelComment.snippet;
+    const text = snippet.textOriginal;
 
     return {
-      id: `guardian-${article.id.replace(/\//g, '-')}`,
+      id: `yt-${comment.id}`,
       content: text.length > 400 ? text.substring(0, 400) + '...' : text,
-      source_url: article.webUrl,
-      source_platform: 'guardian',
-      source_username: 'The Guardian',
+      source_url: `https://www.youtube.com/watch?v=${snippet.videoId}`,
+      source_platform: 'youtube',
+      source_username: snippet.authorDisplayName,
       category: categorizeCope(text),
       cope_level: calculateCopeLevel(text),
-      votes: Math.floor(Math.random() * 200) + 10, // Simulated votes
-      created_at: article.webPublicationDate,
-      subreddit: 'Politics', // Use as section label
+      votes: snippet.likeCount,
+      created_at: snippet.publishedAt,
+      subreddit: 'YouTube', // Section label
     };
   });
 

@@ -23,6 +23,7 @@ const PLATFORM_ICONS: Record<string, string> = {
   reddit: '🤖',
   facebook: '📘',
   guardian: '📰',
+  youtube: '▶️',
   other: '🌐',
 };
 
