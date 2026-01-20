@@ -1,11 +1,12 @@
 'use client';
 
 interface CopeEntry {
-  id: number;
+  id: number | string;
   content: string;
   source_url?: string;
   source_platform: string;
   source_username?: string;
+  subreddit?: string;
   category: string;
   cope_level: number;
   votes: number;
@@ -54,8 +55,11 @@ export const CopeCard = ({ entry, onVote }: CopeCardProps) => {
       {/* Source info */}
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
         <span>{platformIcon}</span>
+        {entry.subreddit && (
+          <span className="font-medium text-orange-600">r/{entry.subreddit}</span>
+        )}
         {entry.source_username && (
-          <span className="font-medium">@{entry.source_username}</span>
+          <span className="font-medium">u/{entry.source_username}</span>
         )}
         {entry.source_url && (
           <a
@@ -64,7 +68,7 @@ export const CopeCard = ({ entry, onVote }: CopeCardProps) => {
             rel="noopener noreferrer"
             className="text-blue-500 hover:underline ml-auto"
           >
-            Source ↗
+            View on Reddit ↗
           </a>
         )}
       </div>

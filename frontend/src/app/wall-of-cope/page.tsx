@@ -8,11 +8,12 @@ import { CopeFilters } from './components/CopeFilters';
 import FollowCTA from '@/components/FollowCTA';
 
 interface CopeEntry {
-  id: number;
+  id: number | string;
   content: string;
   source_url?: string;
   source_platform: string;
   source_username?: string;
+  subreddit?: string;
   category: string;
   cope_level: number;
   votes: number;
@@ -117,49 +118,45 @@ export default function WallOfCopePage() {
   const fetchEntries = async () => {
     setIsLoading(true);
 
-    // Try to fetch from API, fall back to mock data
+    // Try to fetch from Reddit API, fall back to mock data
     try {
       const params = new URLSearchParams({
         sort_by: sortBy,
         ...(category !== 'all' && { category }),
       });
 
-      const res = await fetch(`/api/cope?${params}`);
+      const res = await fetch(`/api/reddit-cope?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setEntries(data);
+        if (data.length > 0) {
+          setEntries(data);
+        } else {
+          // No Reddit results, use mock data
+          setEntries(getMockEntries());
+        }
       } else {
-        // Use mock data as fallback
-        let filtered = [...MOCK_ENTRIES];
-        if (category !== 'all') {
-          filtered = filtered.filter((e) => e.category === category);
-        }
-        if (sortBy === 'votes') {
-          filtered.sort((a, b) => b.votes - a.votes);
-        } else if (sortBy === 'recent') {
-          filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        } else if (sortBy === 'cope_level') {
-          filtered.sort((a, b) => b.cope_level - a.cope_level);
-        }
-        setEntries(filtered);
+        setEntries(getMockEntries());
       }
     } catch {
-      // Use mock data on error
-      let filtered = [...MOCK_ENTRIES];
-      if (category !== 'all') {
-        filtered = filtered.filter((e) => e.category === category);
-      }
-      if (sortBy === 'votes') {
-        filtered.sort((a, b) => b.votes - a.votes);
-      } else if (sortBy === 'recent') {
-        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      } else if (sortBy === 'cope_level') {
-        filtered.sort((a, b) => b.cope_level - a.cope_level);
-      }
-      setEntries(filtered);
+      setEntries(getMockEntries());
     }
 
     setIsLoading(false);
+  };
+
+  const getMockEntries = () => {
+    let filtered = [...MOCK_ENTRIES];
+    if (category !== 'all') {
+      filtered = filtered.filter((e) => e.category === category);
+    }
+    if (sortBy === 'votes') {
+      filtered.sort((a, b) => b.votes - a.votes);
+    } else if (sortBy === 'recent') {
+      filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    } else if (sortBy === 'cope_level') {
+      filtered.sort((a, b) => b.cope_level - a.cope_level);
+    }
+    return filtered;
   };
 
   const fetchFeatured = async () => {
