@@ -109,31 +109,22 @@ function calculateCopeLevel(text: string): number {
   return Math.min(level, 10);
 }
 
-// Check if content is likely "cope" - now much more lenient
+// Check if content is relevant - VERY lenient, accept almost anything
 function isCope(text: string): boolean {
-  const lowerText = text.toLowerCase();
-
-  // Must mention Starmer, Keir, or Labour
-  const mentionsSubject =
-    lowerText.includes('starmer') ||
-    lowerText.includes('keir') ||
-    lowerText.includes('labour') ||
-    lowerText.includes('government');
-
-  // Accept any post that mentions the subject - we'll categorize and score it
-  return mentionsSubject;
+  // Accept any post with content - these are UK politics subreddits so it's all relevant
+  return true;
 }
 
 // Fetch new/hot posts from a subreddit (more reliable than search)
 async function fetchSubredditNew(subreddit: string): Promise<RedditPost[]> {
   try {
-    const url = `https://www.reddit.com/r/${subreddit}/new.json?limit=100`;
+    const url = `https://www.reddit.com/r/${subreddit}/hot.json?limit=50`;
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'StarmerWatch/1.0 (by /u/starmerwatch)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       },
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      cache: 'no-store', // Don't cache to ensure fresh results
     });
 
     if (!response.ok) {
@@ -152,13 +143,13 @@ async function fetchSubredditNew(subreddit: string): Promise<RedditPost[]> {
 // Fetch posts from a subreddit search
 async function fetchSubredditPosts(subreddit: string, query: string): Promise<RedditPost[]> {
   try {
-    const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=new&limit=100&restrict_sr=on`;
+    const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=new&limit=50&restrict_sr=on`;
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'StarmerWatch/1.0 (by /u/starmerwatch)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       },
-      next: { revalidate: 300 },
+      cache: 'no-store',
     });
 
     if (!response.ok) return [];
@@ -197,8 +188,8 @@ export async function GET(request: Request) {
 
     for (const post of posts) {
       const text = post.data.selftext || post.data.title;
-      // Much more lenient: just needs to mention the subject and have some content
-      if (text && isCope(text) && text.length > 20) {
+      // Accept any post with text content
+      if (text && text.length > 5) {
         allContent.push({
           id: `reddit-post-${post.data.id}`,
           content: text.length > 400 ? text.substring(0, 400) + '...' : text,
@@ -218,7 +209,7 @@ export async function GET(request: Request) {
     const searchPosts = await fetchSubredditPosts(subreddit, 'starmer OR keir OR labour');
     for (const post of searchPosts) {
       const text = post.data.selftext || post.data.title;
-      if (text && isCope(text) && text.length > 20) {
+      if (text && text.length > 5) {
         // Check if already added
         const exists = allContent.some(c => c.id === `reddit-post-${post.data.id}`);
         if (!exists) {
